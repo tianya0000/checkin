@@ -29,9 +29,8 @@ def update_token(refresh_token):
     refresh_token = response['refresh_token']
     print('获取的access_token为：{}'.format(access_token))
     print('获取的refresh_token为：{}'.format(refresh_token))
-    update_refsh_token(refresh_token)
     print('更新refresh_token成功')
-    return access_token
+    return access_token,refresh_token
 
 #签到
 def daily_check(access_token):
@@ -80,8 +79,10 @@ def get_refsh_token():
 def mian():
     print('更新access_token')
     refresh_token=get_refsh_token()
-    access_token = update_token(refresh_token)
-    print('更新成功，开始进行签到')
+    access_token,new_refresh_token = update_token(refresh_token)
+    print('更新access_token成功')
+    update_refsh_token(new_refresh_token)
+    print('新refresh_token写入文件成功，开始签到')
     content = daily_check(access_token)
     send('阿里云盘签到', content)  # 消息发送
 
