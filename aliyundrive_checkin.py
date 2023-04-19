@@ -75,7 +75,7 @@ def get_refsh_token_Dict():
 
 def mian():
     print('更新access_token')
-    refresh_token=os.environ["refresh_token"].split('&')
+    refresh_tokens=os.environ["refresh_token"].split('&')
     dict_refsh_tokens = get_refsh_token_Dict()
     for refresh_token in refresh_tokens:
         try:
