@@ -27,8 +27,9 @@ def update_token(refresh_token):
     response = requests.post(url=url, json=data).json()
     access_token = response['access_token']
     refresh_token = response['refresh_token']
+    nick_name = response['nick_name']
     print('更新refresh_token成功')
-    return access_token,refresh_token
+    return access_token,refresh_token,nick_name
 
 
 #签到
@@ -86,13 +87,14 @@ def mian():
                 temp_refresh_token = dict_refsh_token
             else:
                 temp_refresh_token = refresh_token
-            access_token,new_refresh_token = update_token(temp_refresh_token)
+            access_token,new_refresh_token,nick_name = update_token(temp_refresh_token)
             if access_token !=None:
                 print('更新access_token成功')
                 # 将最新refresh_token存入字典中
                 dict_refsh_tokens[refresh_token]=new_refresh_token
                 content = daily_check(access_token)
-                send('阿里云盘签到', content)  # 消息发送
+                content_fist = 'TG讨论群：https://t.me/+qWEhwrx8lCZiYTc1 \n昵称：'+nick_name 
+                send('阿里云盘签到', content_fist + content)  # 消息发送
         except Exception as e :
             print(e)
     #将字典写入文件中
