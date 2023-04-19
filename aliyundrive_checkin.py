@@ -93,7 +93,7 @@ def mian():
                 # 将最新refresh_token存入字典中
                 dict_refsh_tokens[refresh_token]=new_refresh_token
                 content = daily_check(access_token)
-                content_fist = 'TG讨论群：https://t.me/+qWEhwrx8lCZiYTc1 \n昵称：'+nick_name 
+                content_fist = 'TG讨论群：https://t.me/+qWEhwrx8lCZiYTc1 \n昵称：【{}】'.format(nick_name)
                 send('阿里云盘签到', content_fist + content)  # 消息发送
         except Exception as e :
             print(e)
