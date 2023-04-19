@@ -5,7 +5,7 @@
 TG: https://t.me/+qWEhwrx8lCZiYTc1
 cron: 1 7 * * *
 new Env('阿里云盘签到');
-变量 export refresh_token="xxxx"
+变量 export refresh_token="refresh_token1&refresh_token2&refresh_token3"
 """
 
 
@@ -27,10 +27,9 @@ def update_token(refresh_token):
     response = requests.post(url=url, json=data).json()
     access_token = response['access_token']
     refresh_token = response['refresh_token']
-    print('获取的access_token为：{}'.format(access_token))
-    print('获取的refresh_token为：{}'.format(refresh_token))
     print('更新refresh_token成功')
     return access_token,refresh_token
+
 
 #签到
 def daily_check(access_token):
@@ -51,41 +50,53 @@ def daily_check(access_token):
                     content = '签到成功，今日未获得奖励'
                 else:
                     content = '本月累计签到{}天,今日签到获得{}{}'.format(result['result']['signInCount'],
-                                                                     day_json['reward']['name'],
-                                                                     day_json['reward']['description'])
+                                                                    day_json['reward']['name'],
+                                                                    day_json['reward']['description'])
                 print(content)
-
                 return content
 
+
 #更新refresh_token
-def update_refsh_token(new_refresh_token):
-    f = open(filename, "w")
-    f.write(new_refresh_token)
-    f.close()
+def update_refsh_token(dict_refsh_tokens):
+    with open(filename, 'w', encoding='utf-8') as f:
+        f.write(json.dumps(dict_refsh_tokens))
+        f.close()
 
 
 #获取refresh_token
-def get_refsh_token():
-    refresh_token=None
+def get_refsh_token_Dict():
+    refresh_token={}
     if os.path.exists(filename) == True:
-        file = open(filename,'r')  #打开文件
-        refresh_token = file.readline()
-        print('从filename文件中读取的：'+refresh_token)
-
-    if refresh_token == None:
-        refresh_token=os.environ["refresh_token"]
+        file = open(filename,'r')
+        json_data = file.readline()
+        print('从filename文件中读取的：'+json_data)
+        refresh_token =json.loads(json_data)
     return refresh_token
 
 def mian():
     print('更新access_token')
-    refresh_token=get_refsh_token()
-    access_token,new_refresh_token = update_token(refresh_token)
-    print('更新access_token成功')
-    update_refsh_token(new_refresh_token)
-    print('新refresh_token写入文件成功，开始签到')
-    content = daily_check(access_token)
-    send('阿里云盘签到', content)  # 消息发送
-
+    refresh_token=os.environ["refresh_token"].split('&')
+    dict_refsh_tokens = get_refsh_token_Dict()
+    for refresh_token in refresh_tokens:
+        try:
+            ##从字典中获取上次更新的refresh_token
+            dict_refsh_token = dict_refsh_tokens.get(refresh_token)
+            temp_refresh_token = ''
+            if dict_refsh_token != None:
+                temp_refresh_token = dict_refsh_token
+            else:
+                temp_refresh_token = refresh_token
+            access_token,new_refresh_token = update_token(temp_refresh_token)
+            if access_token !=None:
+                print('更新access_token成功')
+                # 将最新refresh_token存入字典中
+                dict_refsh_tokens[refresh_token]=new_refresh_token
+                content = daily_check(access_token)
+                send('阿里云盘签到', content)  # 消息发送
+        except Exception as e :
+            print(e)
+    #将字典写入文件中
+    update_refsh_token(dict_refsh_tokens)
 
 if __name__ == '__main__':
     mian()
