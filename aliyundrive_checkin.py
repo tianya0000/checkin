@@ -12,7 +12,7 @@ new Env('阿里云盘签到');
 import json
 import  requests
 import os
-#from notify import send
+from notify import send
 
 
 filename='refresh_token.txt'
